@@ -67,4 +67,28 @@ describe('directive usage', () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.$el.value).toBe('11.11.2011');
   });
+
+  it('allows to remove value char-by-char using backspace', async () => {
+    const wrapper = mountWithMask({
+      data: () => ({ mask: '##:##', value: '1234' }),
+      template: '<input v-mask="mask" v-model="value"/>',
+    });
+    const simulateBackspaceForWrapper = async (wr) => {
+      const currentValue = wr.vm.$el.value;
+      // eslint-disable-next-line no-param-reassign
+      wr.vm.$el.value = currentValue.substr(0, currentValue.length - 1);
+      wr.trigger('input');
+      await wr.vm.$nextTick();
+    };
+    await simulateBackspaceForWrapper(wrapper);
+    expect(wrapper.vm.$el.value).toBe('12:3');
+    await simulateBackspaceForWrapper(wrapper);
+    expect(wrapper.vm.$el.value).toBe('12:');
+    await simulateBackspaceForWrapper(wrapper);
+    expect(wrapper.vm.$el.value).toBe('12');
+    await simulateBackspaceForWrapper(wrapper);
+    expect(wrapper.vm.$el.value).toBe('1');
+    await simulateBackspaceForWrapper(wrapper);
+    expect(wrapper.vm.$el.value).toBe('');
+  });
 });
